@@ -15,7 +15,7 @@ async function openReset(page: import('@playwright/test').Page) {
 test('a new learner can study, finish ten questions, and retain progress after reload', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  await page.goto('/')
+  await page.goto('/belajar')
   await expect(page.getByRole('heading', { name: 'Mau belajar apa?' })).toBeVisible()
   await page.screenshot({ path: 'test-results/desktop-home.png', fullPage: true })
   await page.getByRole('link', { name: /Mulai belajar/ }).click()
@@ -68,7 +68,7 @@ test('wrong, assisted, skipped, empty, and blank answers follow the PRD', async 
 
 test('Sprint expires by elapsed time and never counts the open prompt as wrong', async ({ page }) => {
   await page.clock.install()
-  await page.goto('/')
+  await page.goto('/belajar')
   await page.locator('.quick-mode').filter({ hasText: 'Sprint' }).click()
   await expect(page.getByRole('button', { name: /Sprint 60 detik/ })).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: 'Mulai latihan', exact: true }).click()
@@ -99,7 +99,7 @@ test('pause and reload preserve attempts and exclude a speed record', async ({ p
 
 test('Hangul uses syllable prompts; mobile pages fit the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/')
+  await page.goto('/belajar')
   await expect(page.getByRole('heading', { name: 'Mau belajar apa?' })).toBeVisible()
   await page.locator('.quest-mascot img').evaluate(img => (img as HTMLImageElement).decode())
   await page.screenshot({ path: 'test-results/mobile-home.png', fullPage: true })

@@ -5,7 +5,7 @@ test.use({ storageState: { cookies: [], origins: [] } })
 test('first visit tour supports interactive learning, language selection, and replay', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  await page.goto('/')
+  await page.goto('/belajar')
   const intro = page.getByRole('dialog')
   await expect(intro).toBeVisible()
   await expect(intro.getByRole('heading', { name: 'Huruf baru. Dunia baru.' })).toBeFocused()
@@ -76,7 +76,7 @@ test('tour remains dismissible when local storage is blocked', async ({ page }) 
       return setItem.call(this, key, value)
     }
   })
-  await page.goto('/')
+  await page.goto('/belajar')
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.getByRole('button', { name: 'Lewati intro' }).click()
   await expect(page.getByRole('dialog')).not.toBeVisible()

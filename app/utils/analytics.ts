@@ -62,3 +62,18 @@ export function itemAnalytics(sessions: Session[]) {
       level: attempts.length < 5 ? 'Data awal' : difficulty >= 60 ? 'Sulit' : difficulty >= 30 ? 'Perlu latihan' : 'Relatif lancar' }
   }).sort((a, b) => b.difficulty - a.difficulty || b.wrong - a.wrong || a.itemId.localeCompare(b.itemId))
 }
+
+/** Recent difficulties only: three independent correct answers clear an item. */
+export function reviewSummary(sessions: Session[]) {
+  return itemAnalytics(sessions).flatMap(row => {
+    const recent = row.attempts.slice(-10)
+    const metrics = attemptMetrics(recent)
+    if (metrics.correct === metrics.total || (recent.length >= 3 && recent.slice(-3).every(a => a.outcome === 'correct'))) return []
+    const reasons = [
+      metrics.wrong ? `${metrics.wrong} salah` : '',
+      metrics.assisted ? `${metrics.assisted} dibantu` : '',
+      metrics.skipped ? `${metrics.skipped} dilewati` : ''
+    ].filter(Boolean)
+    return [{ itemId: row.itemId, ...metrics, reason: reasons.join(' · '), provisional: recent.length < 5 }]
+  }).sort((a, b) => a.accuracy - b.accuracy || b.wrong - a.wrong || b.total - a.total || a.itemId.localeCompare(b.itemId))
+}

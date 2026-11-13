@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui"],
   ui: { fonts: false },
-  css: ["~/assets/css/main.css", "~/assets/css/game.css"],
+  css: ["~/assets/css/main.css", "~/assets/css/game.css", "~/assets/css/theme.css", "~/assets/css/mascots.css"],
   runtimeConfig: {
     public: { siteUrl: "" },
   },

@@ -1,8 +1,10 @@
 import type { PracticeConfig, ProgressData, Session } from '../types/learning'
+import { validCampaign } from './campaign.ts'
+import { content } from '../data/content.ts'
 
 const DB_NAME = 'kanalearn-v1'
 const SETTINGS_KEY = 'kanalearn-settings-v1'
-export const defaultSettings = () => ({ language: 'ja' as const, reducedMotion: false, lastConfig: null })
+export const defaultSettings = () => ({ language: 'ja' as const, reducedMotion: false, soundEffects: true, soundVolume: 65, lastConfig: null })
 export const emptyProgress = (): ProgressData => ({ schemaVersion: 1, sessions: [], settings: defaultSettings() })
 
 let connection: Promise<IDBDatabase> | undefined
@@ -39,12 +41,17 @@ export async function persistSession(session: Session) {
   })
 }
 
+const validSoundVolume = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100
+
 export function readSettings() {
   const raw = localStorage.getItem(SETTINGS_KEY)
   if (!raw) return defaultSettings()
   const settings = JSON.parse(raw)
   if (!settings || !['ja', 'ko'].includes(settings.language) || typeof settings.reducedMotion !== 'boolean') throw new Error('Preferensi tersimpan tidak valid.')
-  return { language: settings.language, reducedMotion: settings.reducedMotion, lastConfig: validConfig(settings.lastConfig) ? settings.lastConfig : null }
+  return { language: settings.language, reducedMotion: settings.reducedMotion, soundEffects: typeof settings.soundEffects === 'boolean' ? settings.soundEffects : true, lastConfig: validConfig(settings.lastConfig) ? settings.lastConfig : null,
+    soundVolume: validSoundVolume(settings.soundVolume) ? settings.soundVolume : 65,
+    ...(validCampaign(settings.campaign, content) ? { campaign: settings.campaign } : {}),
+    ...(stringArray(settings.achievementSeenIds) ? { achievementSeenIds: settings.achievementSeenIds } : {}) }
 }
 
 export const persistSettings = (settings: ProgressData['settings']) => localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
@@ -86,6 +93,12 @@ export function validateImport(raw: string, knownIds: Set<string>): ProgressData
   if (!data || data.schemaVersion !== 1 || !Array.isArray(data.sessions) || data.sessions.length > 5000) return fail()
   const prefs = data.settings
   if (!prefs || !['ja', 'ko'].includes(prefs.language) || typeof prefs.reducedMotion !== 'boolean' || (prefs.lastConfig !== null && !validConfig(prefs.lastConfig))) return fail()
+  if (prefs.soundEffects !== undefined && typeof prefs.soundEffects !== 'boolean') return fail()
+  if (prefs.achievementSeenIds !== undefined && !stringArray(prefs.achievementSeenIds)) return fail()
+  prefs.soundEffects ??= true
+  if (prefs.soundVolume !== undefined && !validSoundVolume(prefs.soundVolume)) return fail()
+  prefs.soundVolume ??= 65
+  if (prefs.campaign !== undefined && !validCampaign(prefs.campaign, content)) return fail()
   const ids = new Set<string>()
   const allAttempts = new Set<string>()
   for (const session of data.sessions) {

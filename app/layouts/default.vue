@@ -1,11 +1,16 @@
 <script setup lang="ts">
 const store = useLearningStore()
 const route = useRoute()
+const achievementInbox = useAchievementInbox()
 const links = [
-  { to: '/', label: 'Beranda', icon: 'home' },
+  { to: '/belajar', label: 'Beranda', icon: 'home' },
+  { to: '/perjalanan', label: 'Perjalanan Belajar', icon: 'target' },
   { to: '/materi', label: 'Materi', icon: 'book' },
   { to: '/latihan', label: 'Latihan', icon: 'play' },
+  { to: '/typing-race', label: 'Typing Race', icon: 'bolt' },
   { to: '/progres', label: 'Progres', icon: 'chart' },
+  { to: '/raport', label: 'Raport', icon: 'report' },
+  { to: '/achievement', label: 'Achievement', icon: 'trophy' },
   { to: '/pengaturan', label: 'Pengaturan', icon: 'settings' }
 ]
 onMounted(() => store.init())
@@ -18,13 +23,16 @@ const publicContent = computed(() => route.path === '/' || route.path === '/mate
     <a class="skip-link" href="#main">Lewati ke konten</a>
     <aside v-if="!arena" class="sidebar">
       <NuxtLink to="/" class="brand" aria-label="KanaLearn beranda"><span class="brand-mark">か</span><span>Kana<span class="text-accent">Learn</span></span></NuxtLink>
-      <nav aria-label="Navigasi utama">
-        <NuxtLink v-for="link in links" :key="link.to" :to="link.to" :class="{ active: link.to === '/' ? route.path === '/' : route.path.startsWith(link.to) }"><span class="nav-icon"><AppIcon :name="link.icon" :size="22" /></span><span>{{ link.label }}</span></NuxtLink>
+      <nav aria-label="Navigasi utama" :style="{ '--nav-count': links.length + 1 }">
+        <NuxtLink v-for="link in links" :key="link.to" :to="link.to" :class="{ active: link.to === '/' ? route.path === '/' : route.path.startsWith(link.to) }"><span class="nav-icon"><AppIcon :name="link.icon" :size="22" /><span v-if="link.to === '/achievement' && achievementInbox.unread.value.length" class="achievement-alert-dot" role="status" :aria-label="`${achievementInbox.unread.value.length} achievement baru belum dilihat`" /></span><span>{{ link.label }}</span></NuxtLink>
+        <a href="https://forms.gle/pX87UedPFWFYH2af6" target="_blank" rel="noopener noreferrer"><span class="nav-icon"><AppIcon name="message" :size="22" /></span><span>Masukan dan Saran</span></a>
       </nav>
-      <div class="sidebar-companion" aria-hidden="true"><KikoMascot decorative /><span>KIKO</span></div>
+      <SidebarCompanion />
     </aside>
+    <AchievementNotification />
     <div class="main-shell">
       <header v-if="!arena" class="mobile-brand"><NuxtLink to="/" class="brand"><span class="brand-mark">か</span><span>Kana<span class="text-accent">Learn</span></span></NuxtLink></header>
+      <div class="theme-toolbar"><ThemeToggle /></div>
       <main id="main" tabindex="-1" :class="['main-content', { 'arena-main': arena }]">
         <div v-if="store.storageError.value" class="notice danger" role="alert"><strong>Penyimpanan bermasalah</strong><p>{{ store.storageError.value }}</p><button class="text-button" @click="store.exportProgress">Ekspor data sekarang</button></div>
         <slot v-if="store.ready.value || publicContent" />
@@ -39,3 +47,10 @@ const publicContent = computed(() => route.path === '/' || route.path === '/mate
     </div>
   </div>
 </template>
+
+<style scoped>
+@media (max-width: 680px) {
+  .sidebar nav { grid-template-columns: repeat(var(--nav-count), minmax(60px, 1fr)); overflow-x: auto; padding-bottom: 3px; }
+  .sidebar nav a { font-size: 8px; text-align: center; overflow-wrap: anywhere; }
+}
+</style>

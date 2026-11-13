@@ -71,8 +71,12 @@ export interface Session {
 }
 
 export interface Preferences {
+  achievementSeenIds?: string[]
+  campaign?: import('./campaign').CampaignData
   language: Language
   reducedMotion: boolean
+  soundEffects: boolean
+  soundVolume: number
   lastConfig: PracticeConfig | null
 }
 

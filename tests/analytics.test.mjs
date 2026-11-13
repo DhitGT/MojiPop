@@ -1,10 +1,33 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { attemptMetrics, itemAnalytics, resultHistory } from '../app/utils/analytics.ts'
+import { attemptMetrics, itemAnalytics, resultHistory, reviewSummary } from '../app/utils/analytics.ts'
 
 const config = { script: 'hiragana', kind: 'letter' }
 const attempt = (outcome, ms, extra = {}) => ({ id: crypto.randomUUID(), sessionId: 's', itemId: 'a', order: 0, outcome, responseMs: ms, input: outcome === 'wrong' ? 'i' : 'a', accepted: outcome === 'correct', assisted: outcome === 'assisted', ...extra })
 const session = (id, day, attempts, extra = {}) => ({ id, config, contentVersion: '1', startedAt: `2026-11-${day}T00:00:00Z`, attempts, ...extra })
+
+test('focus ranks recent struggles, includes hints and skips, and clears recovered items', () => {
+  const answers = (itemId, outcomes) => outcomes.map((outcome, order) => attempt(outcome, 1000, { itemId, order }))
+  const rows = reviewSummary([session('s', '01', [
+    ...answers('recovered', ['wrong', 'wrong', 'correct', 'correct', 'correct']),
+    ...answers('old-error', ['wrong', ...Array(10).fill('correct')]),
+    ...answers('struggling', ['wrong', 'wrong', 'correct', 'skipped']),
+    ...answers('hint', ['assisted']),
+    ...answers('fluent', ['correct'])
+  ])])
+  assert.deepEqual(rows.map(row => row.itemId), ['hint', 'struggling'])
+  assert.equal(rows[0].reason, '1 dibantu')
+  assert.equal(rows[0].provisional, true)
+  assert.equal(rows[1].reason, '2 salah · 1 dilewati')
+  assert.equal(rows[1].accuracy, 25)
+  assert.deepEqual(reviewSummary([]), [])
+})
+
+test('focus follows answer timestamps when an older session resumes', () => {
+  const older = session('older', '01', [attempt('wrong', 1000, { answeredAt: '2026-11-03T00:00:00Z' })])
+  const newer = session('newer', '02', Array.from({ length: 3 }, (_, order) => attempt('correct', 1000, { order })))
+  assert.equal(reviewSummary([newer, older])[0].wrong, 1)
+})
 
 test('metrics include assisted/skipped responses without granting independent accuracy', () => {
   const m = attemptMetrics([attempt('correct', 1000), attempt('wrong', 3000), attempt('assisted', 4000), attempt('skipped', 8000)])

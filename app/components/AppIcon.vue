@@ -1,6 +1,12 @@
 <script setup lang="ts">
 withDefaults(defineProps<{ name: string, size?: number }>(), { size: 20 })
 const paths: Record<string, string> = {
+  message: 'M21 11.5a8.5 8.5 0 0 1-8.5 8.5H3l2.4-4.8A8.5 8.5 0 1 1 21 11.5ZM8 9h8m-8 4h5',
+  report: 'M14 2H5v20h14V7l-5-5Zm0 0v5h5M8 11h8M8 15h8M8 19h4',
+  trophy: 'M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 2v6m-4 1h8',
+  lock: 'M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5V10Zm7 4v3',
+  moon: 'M21 13a9 9 0 0 1-10-10A9 9 0 1 0 21 13Z',
+  sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5',
   home: 'M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z',
   book: 'M12 5c-3-2-6-2-10-1v15c4-1 7-1 10 1m0-15c3-2 6-2 10-1v15c-4-1-7-1-10 1V5Z',
   play: 'm9 5 11 7-11 7V5Z',

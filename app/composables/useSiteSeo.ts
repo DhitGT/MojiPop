@@ -6,6 +6,10 @@ export function useSiteSeo() {
   const requestUrl = useRequestURL()
   const origin = (config.public.siteUrl || requestUrl.origin).replace(/\/$/, '')
   const pages: Record<string, { title: string; description: string; private?: boolean }> = {
+    '/belajar': { title: 'Beranda belajar · KanaLearn', description: 'Lanjutkan belajar Hiragana, Katakana, dan Hangul, pilih materi, atau mulai latihan singkat.', private: true },
+    '/raport': { title: 'Raport belajar · KanaLearn', description: 'Ringkasan nilai, aktivitas, dan rekomendasi latihan Jepang serta Korea berdasarkan riwayat belajarmu.', private: true },
+    '/achievement': { title: 'Achievement · KanaLearn', description: 'Milestone penguasaan huruf, jawaban benar, sesi belajar, dan streak pribadimu.', private: true },
+    '/perjalanan': { title: 'Perjalanan Belajar · KanaLearn', description: 'Jalur belajar terbimbing dengan tes penempatan, bab, kuis, dan rangkuman pribadi.', private: true },
     '/': {
       title: 'KanaLearn · Belajar Hiragana, Katakana & Hangul',
       description: 'Belajar membaca huruf Jepang dan Korea lewat kartu Hiragana, Katakana, Hangul, dan latihan singkat. Tanpa akun, progres tersimpan di browsermu.',

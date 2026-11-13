@@ -111,6 +111,7 @@ async function startPackage(packageConfig: PracticeConfig) {
 <template>
   <div class="setup-simple">
     <div class="page-heading"><h1>{{ showCustom ? 'Atur latihan' : 'Pilih latihan' }}</h1><LanguageSwitch v-if="!showCustom" /><NuxtLink v-else to="/materi" class="text-link">Pilih materi</NuxtLink></div>
+    <NuxtLink to="/typing-race" class="panel race-entry"><span><strong><AppIcon name="bolt" :size="20" /> Typing Race</strong><small>Ketik romaji dari teks acak. Atur durasi, ukur WPM, dan balapan dengan ghost percobaanmu.</small></span><AppIcon name="arrow" :size="22" /></NuxtLink>
     <div class="practice-tabs" role="group" aria-label="Pilihan pengaturan latihan"><button type="button" :aria-pressed="!showCustom" @click="showCustom = false">Paket siap main</button><button type="button" :aria-pressed="showCustom" @click="showCustom = true">Atur sendiri</button></div>
     <section v-if="!showCustom" aria-label="Paket latihan">
       <div class="package-categories" role="group" aria-label="Kategori paket"><button v-for="category in categories" :key="category.id" type="button" :aria-pressed="packageCategory === category.id" @click="packageCategory = category.id">{{ category.label }} <span>{{ packages.filter(pack => category.id === 'all' || pack.category === category.id).length }}</span></button></div>
@@ -161,3 +162,11 @@ async function startPackage(packageConfig: PracticeConfig) {
     </template>
   </div>
 </template>
+
+<style scoped>
+.race-entry { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 22px; text-decoration: none; color: var(--accent); background: var(--accent-light); }
+.race-entry strong { display: flex; align-items: center; gap: 8px; font-size: 17px; }
+.race-entry small { display: block; margin-top: 8px; color: var(--muted); line-height: 1.6; }
+.race-entry > svg { flex-shrink: 0; }
+.race-entry:hover { border-color: var(--accent); }
+</style>

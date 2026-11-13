@@ -1,0 +1,22 @@
+/* The two registered frames share one clock: a quick blink and an occasional double blink. */
+.mascot-frame-open { animation: mascot-open var(--mascot-blink-duration, 5s) steps(1, end) infinite; }
+.mascot-frame-closed { opacity: 0; animation: mascot-closed var(--mascot-blink-duration, 5s) steps(1, end) infinite; }
+[data-character='mimi'] { --mascot-blink-duration: 5.6s; }
+[data-character='kuro'] { --mascot-blink-duration: 6.2s; }
+[data-character='momo'] { --mascot-blink-duration: 6.8s; }
+.mascot-eyes-shut .mascot-frame-open { animation: none; opacity: 0; }
+.mascot-eyes-shut .mascot-frame-closed { animation: none; opacity: 1; }
+@keyframes mascot-open { 0%, 44%, 48%, 91%, 94%, 98%, 100% { opacity: 1; } 45%, 92%, 96% { opacity: 0; } }
+@keyframes mascot-closed { 0%, 44%, 48%, 91%, 94%, 98%, 100% { opacity: 0; } 45%, 92%, 96% { opacity: 1; } }
+[data-motion='paused'] .mascot-frame-open, .reduce-motion .mascot-frame-open { animation: none !important; opacity: 1; }
+[data-motion='paused'] .mascot-frame-closed, .reduce-motion .mascot-frame-closed { animation: none !important; opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .mascot-frame-open { animation: none !important; opacity: 1 !important; }
+  .mascot-frame-closed { animation: none !important; opacity: 0 !important; }
+}
+/* Leave room for the companion and its controls beside the full navigation. */
+@media (min-width: 681px) and (max-height: 820px) {
+  .sidebar { padding-block: 18px; }
+  .sidebar nav { gap: 4px; margin-top: 20px; }
+  .sidebar nav a { min-height: 44px; padding-block: 5px; }
+}

@@ -15,7 +15,7 @@ for (const width of [1280, 390]) {
         input: index === 0 && order === 0 ? 'a' : 'i', outcome: index === 0 ? 'correct' : 'wrong', accepted: index === 0, assisted: false, responseMs: (order + 1) * 1500, order,
         answeredAt: `2026-11-${day}T00:00:0${order + 1}Z` }))
     }))
-    await page.goto('/')
+    await page.goto('/belajar')
     await page.evaluate(async sessions => {
       await new Promise<void>((resolve, reject) => {
         const request = indexedDB.open('kanalearn-v1', 1)

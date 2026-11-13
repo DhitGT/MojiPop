@@ -1,0 +1,105 @@
+/* Theme surfaces are shared by the learning pages and game components. */
+:root {
+  --surface: #fff;
+  --surface-soft: #faf8ff;
+  --surface-hover: #f1eaff;
+  --page-grid: rgb(104 60 242 / 6%);
+}
+.main-shell {
+  background-image:
+    linear-gradient(to right, var(--page-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--page-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.theme-toolbar { display: flex; justify-content: flex-end; padding: 18px 28px 0; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 9px 13px; border: 2px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font-size: 12px; font-weight: 750; cursor: pointer; }
+.theme-toggle:hover { background: var(--accent-light); }
+.theme-toggle:disabled { cursor: default; }
+html.dark {
+  color-scheme: dark;
+  --page-grid: rgb(181 154 255 / 7%);
+  --paper: #151622;
+  --surface: #202232;
+  --surface-soft: #282a3e;
+  --surface-hover: #33304b;
+  --ink: #f0edf9;
+  --muted: #bbb5ce;
+  --line: #41415b;
+  --accent: #b59aff;
+  --accent-light: #362a53;
+  --green: #8bdbb7;
+}
+html.dark :is(.sidebar, .panel, .language-switch, .quick-mode, .step-words, .letter-chart-wrap, .arena-card, .confirm-dialog, .item-progress, .activity-detail) {
+  background: var(--surface); color: var(--ink); border-color: var(--line); box-shadow: 0 4px 0 #10111b;
+}
+html.dark :is(.field select, .field input, .search-input, .answer-input) {
+  background: var(--surface-soft); color: var(--ink); border-color: #76658e; box-shadow: none;
+}
+html.dark :is(.sidebar nav a, .language-switch button, .field label, .field-label, .disclosure summary, .count-row, th, td) { color: var(--ink); }
+html.dark .sidebar nav a.active { background: var(--accent-light); color: #d4c2ff; border-color: #8264b7; box-shadow: 0 3px 0 #171221; }
+html.dark :is(.sidebar nav a:hover, .quick-mode:hover, .letter-chart-item:hover) { background: var(--surface-hover); }
+html.dark :is(.text-link, .text-button, .eyebrow) { color: var(--accent); }
+html.dark :is(.button, .language-switch button.selected, .tabs .selected) { background: #794ae8; color: #fff; border-color: #a081ec; box-shadow: 0 4px 0 #352253; }
+html.dark .button:hover { background: #8a5cf0; }
+html.dark .button.secondary { background: var(--surface-soft); color: #ded0ff; border-color: #786593; box-shadow: 0 4px 0 #171221; }
+html.dark .button.secondary:hover { background: var(--surface-hover); }
+html.dark .button:disabled { background: #3b3b50; color: #b6b2c6; border-color: #555268; box-shadow: none; }
+html.dark .button.danger-button { background: #a93249; border-color: #d7788a; }
+html.dark :is(.sidebar-note p, .topbar-label, .local-chip, .progress-label, .stat-card small, .stat-number span, .mini-note, .arena-meta, .arena-instruction, .arena-help, .setting-row p, .detail-body p, .step-words p, .storage-caption, .home-progress, .context-line, .field-help, .disclosure, .setup-start > span, .path-more, .path-step small, .quick-mode small, .dashboard-rail .storage-caption, .arena-exit) { color: var(--muted); }
+html.dark :is(.lesson-toolbar, .setup-start, .practice-tabs, .setup-summary, .detail-glyph, .hero, .rail-progress, .rail-path) { background: #2c2943; color: var(--ink); border-color: #685787; box-shadow: 0 4px 0 #151221; }
+html.dark :is(.rail-score, .rail-score > strong, .rail-step, .detail-glyph .reading, .setup-summary dd, .results-hero h1) { color: #d3c1ff; }
+html.dark :is(.rail-score > span, .rail-score strong span) { color: var(--muted); }
+html.dark .rail-progress .progress-bar { border-color: #786593; }
+html.dark :is(.setup-summary p, .setup-summary dt, .hero p, .rail-step small) { color: var(--muted); }
+html.dark :is(.tabs button, .tabs a, .package-categories button, .path-step, .choice) { background: var(--surface-soft); color: var(--ink); border-color: var(--line); box-shadow: 0 3px 0 #13131e; }
+html.dark :is(.tabs .selected, .path-step.selected, .choice.selected) { background: var(--accent-light); color: #e0d1ff; border-color: #aa86ea; }
+html.dark .practice-tabs button { color: #d1c3ed; }
+html.dark .practice-tabs button[aria-pressed="true"] { background: #794ae8; color: #fff; }
+html.dark .package-categories button[aria-pressed="true"] { background: #344526; color: #ddf799; border-color: #849e4b; }
+html.dark :is(.progress-bar, .arena-card .progress-bar) { background: #45405a; }
+html.dark .progress-bar span { background: #b59aff; }
+html.dark .arena-shell { background: #1b192a; }
+html.dark .arena-prompt { color: var(--ink); }
+html.dark .answer-input::placeholder { color: #b2a6c7; }
+html.dark .romaji-option { background: #30273f; color: #e1d0ff; border-color: #8469ae; }
+html.dark .romaji-option:not(:disabled):hover { background: #443159; border-color: #b59aff; }
+html.dark :is(.notice, .feedback.assisted, .romaji-option.is-correct, .romaji-option.is-wrong, .feedback, .feedback.correct, .pause-cover) { background: #382b46; color: #e0c9ff; border-color: #9876bb; }
+html.dark :is(.notice.success, .feedback.correct, .romaji-option.is-correct) { background: #253e30; color: #c6efab; border-color: #7aab69; }
+html.dark :is(.notice.danger, .feedback:not(.correct):not(.assisted), .romaji-option.is-wrong) { background: #492b32; color: #ffc6bf; border-color: #c5817f; }
+html.dark .pause-cover { background: #453c24; color: #ffe2a0; border-color: #b59a53; }
+html.dark :is(.table-wrap th, .item-matrix thead, .item-matrix tfoot, .item-metrics > div) { background: var(--surface-soft); color: var(--ink); border-color: var(--line); }
+html.dark :is(.table-wrap td, .item-matrix th, .item-matrix td) { color: var(--ink); border-color: var(--line); }
+html.dark :is(.item-progress .progress-guidance, .item-metrics dt, .item-metrics dd small, .item-progress .fluency-target p, .item-progress .recent-attempts p, .item-progress .progress-footnote, .recent-attempts h3 span, .item-progress caption) { color: var(--muted); }
+html.dark .item-metrics dd { color: var(--accent); }
+html.dark .race-editor { background: var(--surface-soft); }
+html.dark .race-track .pending { color: #b5abc8; }
+html.dark :is(.race-track .correct, .improved, .count-correct) { color: #8bdbb7; }
+html.dark :is(.race-track .wrong, .slower, .count-wrong) { color: #ffacb9; }
+html.dark .race-track .wrong { background: #532e40; }
+html.dark .chart-axis { fill: var(--muted); }
+html.dark .activity-tile[data-level="0"] { background: #303044; border-color: #41415b; }
+html.dark .activity-tile.is-future { background: #222332; }
+html.dark .companion-dialogue { background: var(--surface-soft); color: var(--ink); border-color: #786593; }
+html.dark .companion-dialogue::after { background: var(--surface-soft); border-color: #786593; }
+html.dark :is(.companion-name, .companion-next, .dialog-copy) { color: var(--muted); }
+/* Bright teaching cards retain dark lettering for readable contrast. */
+html.dark :is(.game-home .study-card, .practice-package, .metric, .setup-simple .choice, .letter-tile, .word-chip, .quest-glyphs > span, .pill, .intro-floating, .intro-letter, .intro-path > div, .intro-modes > div) { color: #252940; }
+html.dark .game-home .study-card .text-link { color: inherit; }
+html.dark .practice-package h2 { color: #252940; }
+html.dark :is(.letter-tile .letter-name, .letter-tile .letter-status) { color: #56516a; }
+html.dark :is(.letter-chart-item .letter-glyph, .letter-chart-item .letter-reading) { color: var(--ink); }
+html.dark .letter-chart-item .letter-name { color: var(--muted); }
+html.dark :is(.intro, .intro::backdrop) { background: var(--paper); }
+html.dark :is(.intro-copy > p, .intro-copy .intro-note, .intro-skip, .intro-back, .intro-brand .intro-edition) { color: var(--muted); }
+html.dark :is(.intro-tag, .intro-spark) { color: var(--accent); }
+html.dark .intro-art { background: #302744; border-color: #80659f; }
+html.dark :is(.intro-demo, .intro-progress-card, .intro-languages button) { background: var(--surface); color: var(--ink); border-color: #80659f; }
+html.dark .intro-languages button[aria-pressed='true'] { background: var(--accent-light); border-color: var(--accent); }
+html.dark :is(.intro-demo > p, .intro-example) { color: var(--muted); }
+html.dark .intro-answers button { color: #252940; }
+html.dark :is(button, a, input, select, summary):focus-visible { outline-color: #c4acff; }
+@media (max-width: 680px) {
+  .theme-toolbar { padding: 12px 16px 0; }
+  .mobile-brand + .theme-toolbar { margin-top: -44px; }
+  .theme-toggle { font-size: 11px; }
+}

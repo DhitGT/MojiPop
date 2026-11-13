@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+@import "./achievements.css";
 
 @theme {
   --font-sans: 'Segoe UI', 'Noto Sans', Arial, sans-serif;
@@ -169,6 +170,24 @@ h1 { font-size: 30px; letter-spacing: -.8px; }
 .disclosure .field { margin-bottom: 16px; }
 .lesson-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 16px; }
 .material-filters { margin-top: 18px; }
+.letter-chart-wrap { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: white; }
+.letter-chart { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.letter-chart th:first-child { width: 110px; }
+.letter-chart tbody th { white-space: normal; overflow-wrap: anywhere; }
+.letter-chart td { padding: 8px; }
+.letter-chart-items { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.letter-chart-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 86px; padding: 8px 2px; border-radius: 8px; text-align: center; }
+.letter-chart-item:hover { background: #f7f4ff; }
+.letter-chart-item .letter-glyph { font-size: clamp(20px, 4vw, 32px); }
+.letter-chart-item .letter-reading { font-size: 13px; overflow-wrap: anywhere; }
+.letter-chart-item .letter-name { font-size: 10px; overflow-wrap: anywhere; }
+@media (max-width: 680px) {
+  .letter-chart th:first-child { width: 74px; }
+  .letter-chart th { padding: 10px 6px; font-size: 11px; }
+  .letter-chart td { padding: 4px; }
+  .letter-chart-items { gap: 2px; }
+  .letter-chart-item .letter-reading { font-size: 11px; }
+}
 .section-title small { font-size: 13px; font-weight: 400; margin-left: 8px; }
 .letter-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 .letter-tile { padding: 24px 12px; }
@@ -215,7 +234,7 @@ body:has(.arena-shell) nuxt-devtools-frame { display: none; }
   .mobile-brand { display: block; padding: 18px 20px 0; }
   .mobile-brand .brand { font-size: 20px; }
   .mobile-brand .brand-mark { width: 32px; height: 34px; font-size: 23px; border-radius: 10px 10px 10px 3px; }
-  .sidebar nav { margin: 0; }
+  .sidebar nav { margin: 0; grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .sidebar nav a { font-size: 10px; }
   .main-content { min-height: calc(100dvh - 120px); padding-top: 28px; }
   h1 { font-size: 27px; }

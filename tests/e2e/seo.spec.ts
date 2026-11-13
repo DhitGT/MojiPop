@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('public pages expose SEO metadata and content in server HTML', async ({ request }) => {
   for (const [path, title, content] of [
-    ['/', 'Belajar Hiragana, Katakana &amp; Hangul', 'Mau belajar apa?'],
+    ['/', 'Belajar Hiragana, Katakana &amp; Hangul', 'Dari asing,'],
     ['/materi', 'Materi Hiragana, Katakana &amp; Hangul', 'Hiragana'],
     ['/materi/hiragana%3A%E3%81%82', 'あ (a)', 'Latih huruf ini'],
     ['/latihan', 'Latihan Huruf Jepang &amp; Korea', 'Sprint 60 detik'],
@@ -44,11 +44,15 @@ test('metadata follows client navigation without hydration errors', async ({ pag
   page.on('console', message => { if (/hydration/i.test(message.text())) errors.push(message.text()) })
   await page.goto('/')
   await expect(page).toHaveTitle(/Belajar Hiragana/)
+  await page.getByRole('link', { name: 'Buka aplikasi' }).click()
+  await expect(page).toHaveURL(/\/belajar$/)
   await page.locator('nav').getByRole('link', { name: 'Materi', exact: true }).click()
   await expect(page).toHaveTitle(/Materi Hiragana/)
   await page.locator('nav').getByRole('link', { name: 'Progres', exact: true }).click()
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow')
   await page.locator('nav').getByRole('link', { name: 'Beranda', exact: true }).click()
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow')
+  await page.getByRole('link', { name: 'KanaLearn beranda' }).click()
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow')
   expect(errors).toEqual([])
 })

@@ -1,5 +1,23 @@
 # Handoff pengembangan KanaLearn
 
+## Penyempurnaan SFX
+
+- Engine Web Audio bersama memakai master volume dengan kurva kuadrat, level nada yang lebih lembut, fade saat suara diganti/dihentikan, dan kanal terpisah untuk feedback, achievement, serta ketikan. Request audio tertunda dibatalkan saat mute atau tab disembunyikan.
+- Pengaturan menyediakan volume 0–100% (default 65%) dan pratinjau delapan efek. `soundVolume` disimpan bersama preferensi dan backup; backup lama memakai default, volume impor di luar rentang ditolak.
+- Typing Race memakai ketikan pendek, nada salah ketik, dan fanfare selesai. Backspace senyap; ketikan dibatasi satu SFX per 45 ms. Unlock audio dan penanganan tab tersembunyi berlaku dari `app.vue` untuk seluruh aplikasi.
+- Unit test preferensi/backup dan typecheck lulus. Tes browser SFX mencakup feedback latihan, mute/reload, seluruh pratinjau, volume/reload, Typing Race, serta mute saat audio masih menunggu resume. Gunakan server yang sudah berjalan lewat `PLAYWRIGHT_BASE_URL` dan jalankan Playwright berurutan agar direktori artefak tidak bertabrakan.
+- Verifikasi akhir: `npm.cmd test` 49 lulus, `npm.cmd run typecheck` exit 0, dan `playwright test tests/e2e/sounds.spec.ts` 4 lulus. Tes Sprint memakai `clock.fastForward` untuk melewati deadline tanpa menjalankan setiap interval selama 61 detik.
+
+## Landing page interaktif
+
+- `/` menjadi landing page publik, dengan dashboard sebelumnya dipertahankan di `/belajar`. Navigasi Beranda aplikasi menuju `/belajar`; logo tetap menuju landing page.
+- Landing memakai aset maskot yang sudah ada: sapaan Kiko lewat klik/keyboard, kartu huruf yang dapat dibalik, parallax pointer, animasi masuk saat scroll, feedback/confetti mini latihan, dan tombol kembali ke atas. Animasi mengikuti `prefers-reduced-motion`; observer, listener, dan timer dibersihkan saat halaman ditinggalkan.
+- Bagian Fitur menampilkan tab Typing Race, Perjalanan Belajar, dan Progres & Achievement. Mini Typing Race memakai kata `さくら / sakura`, dengan feedback ketikan dan gerakan Kiko. Semua preview berlabel demo/ilustrasi, tidak menambah progres atau statistik palsu.
+- Semua maskot landing memakai `KikoMascot` yang sudah memiliki frame mata terbuka/tertutup, idle, reaksi klik/hover, dan jeda saat offscreen/tab tersembunyi. Preview mengetik memakai `TypingRaceMascot` asli dengan gerak tangan dan ekspresi mengikuti input. Aset maskot tidak diubah.
+- CTA memilih bahasa dan membuka dashboard tanpa intro berulang. Intro tetap tersedia saat langsung membuka aplikasi untuk pertama kali dan lewat Pengaturan. Footer mencantumkan tautan `Powered by dheep.site`.
+- Tes aplikasi yang sebelumnya memakai `/` kini membuka `/belajar`. Tes landing tersendiri mencakup pemilihan bahasa, demo jawaban, navigasi, layar ponsel, fitur, keyboard, dan reduced motion.
+- Verifikasi akhir: typecheck lulus, build produksi berhasil, dan tujuh tes landing/SEO lulus terhadap server produksi lokal (28,7 detik). Screenshot ponsel ada di `.cache/landing-preview/landing-feature-mobile.png`. Server pengembangan pengguna dipertahankan; server preview produksi sementara dihentikan setelah QA.
+
 ## Terbaru: pilihan ganda dan paket siap main
 
 Perluasan terakhir: 31 paket Jepang dan 17 paket Korea, dikelompokkan sebagai Mulai dari Nol (4 paket per bahasa), Huruf (13 Jepang / 4 Korea), Kata (9 Jepang / 4 Korea), Tantangan (5 per bahasa). Halaman pertama hanya menampilkan kategori pemula. Filter jenis jawaban (pilihan ganda/ketik) dan materi (huruf/kata), jumlah paket, serta empty state/reset filter tersedia. Paket mencakup baris kana, dakuten/handakuten/kombinasi, kata pendek/panjang/tsu kecil/vokal panjang, vokal/konsonan Hangul, Sprint ketik/kata, dan Time Attack 20 soal. Semua paket memakai katalog yang sudah ada; tidak menambah konten bahasa yang belum ditinjau. Tombol kartu “Mulai” langsung menjalankan sesi, label aksesibelnya menyebut nama paket.

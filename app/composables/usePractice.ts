@@ -4,6 +4,7 @@ import { makeAttempt, makeQueue, makeChoices, selectPool } from '~/utils/learnin
 
 export function usePractice(session: Ref<Session | undefined>) {
   const store = useLearningStore()
+  const sounds = useSoundEffects()
   const input = ref('')
   const assisted = ref(false)
   const feedback = ref<Attempt | null>(null)
@@ -47,6 +48,7 @@ export function usePractice(session: Ref<Session | undefined>) {
     s.unfinished = expired && !feedback.value && current.value ? 1 : 0
     const targetReached = s.config.mode === 'sprint' ? expired || s.activeMs >= 60000 : !s.config.count || s.attempts.length >= s.config.count
     s.status = targetReached ? 'completed' : 'interrupted'
+    if (targetReached) void sounds.play('complete')
     s.endedAt = new Date().toISOString()
     generation++
     promptReady.value = false
@@ -104,6 +106,7 @@ export function usePractice(session: Ref<Session | undefined>) {
     const attempt = makeAttempt(s, current.value, skipped ? '' : input.value, assisted.value, skipped, performance.now() - promptStart)
     s.attempts.push(attempt)
     feedback.value = attempt
+    void sounds.play(skipped ? 'skip' : attempt.accepted ? 'correct' : 'wrong')
     s.activeMs = activeMs()
     void store.saveSession(s)
     if (s.config.answerFormat === 'choice' || attempt.outcome === 'correct') transition = setTimeout(() => void next(), s.config.answerFormat === 'choice' ? 850 : store.data.value.settings.reducedMotion ? 150 : 650)
@@ -114,7 +117,10 @@ export function usePractice(session: Ref<Session | undefined>) {
     submit()
   }
   function hint() {
-    if (session.value?.status === 'active' && promptReady.value && !feedback.value && !expired()) assisted.value = true
+    if (session.value?.status === 'active' && promptReady.value && !feedback.value && !assisted.value && !expired()) {
+      assisted.value = true
+      void sounds.play('hint')
+    }
   }
   function pause() {
     const s = session.value
@@ -147,7 +153,7 @@ export function usePractice(session: Ref<Session | undefined>) {
     void store.saveSession(s)
     await focusPrompt()
   }
-  function visibility() { if (document.hidden) pause() }
+  function visibility() { if (document.hidden) { sounds.stop(); pause() } }
   function keyboard(event: KeyboardEvent) {
     if (event.key === 'Escape') { event.preventDefault(); pause() }
   }
