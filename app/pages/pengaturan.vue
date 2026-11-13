@@ -2,7 +2,7 @@
 import type { ProgressData } from '~/types/learning'
 import { content, CONTENT_VERSION } from '~/data/content'
 const store = useLearningStore()
-useHead({ title: 'Pengaturan · KanaLearn' })
+const intro = useIntro()
 const pendingImport = ref<ProgressData | null>(null)
 const action = ref<'reset' | 'import' | null>(null)
 const message = ref('')
@@ -33,6 +33,7 @@ async function confirm() {
 <template>
   <div class="settings-simple">
     <div class="page-heading"><h1>Pengaturan</h1></div>
+    <section class="panel"><h2>Kenalan dengan KanaLearn</h2><p class="field-help">Lihat lagi cara belajar, pilihan latihan, dan teman belajarmu, Kiko.</p><button class="button secondary" @click="intro.replay"><AppIcon name="play" :size="16" /> Putar ulang intro</button></section>
     <div v-if="message" role="status" class="notice success">{{ message }}</div><div v-if="error" role="alert" class="notice danger">{{ error }}</div>
     <section class="panel"><div class="setting-row"><h3>Bahasa</h3><LanguageSwitch /></div><label class="setting-row"><div><h3>Kurangi animasi</h3></div><input type="checkbox" :checked="store.data.value.settings.reducedMotion" @change="store.updateSettings({ reducedMotion: ($event.target as HTMLInputElement).checked })"></label></section>
     <section class="panel"><h2>Cadangan progres</h2><p class="field-help">Progres hanya ada di browser ini. Simpan cadangan sebelum menghapus data browser.</p><button class="button secondary" @click="store.exportProgress"><AppIcon name="download" :size="16" /> Unduh cadangan</button><div class="detail-section"><h3>Pulihkan cadangan</h3><p class="field-help">Mengganti seluruh progres saat ini.</p><label for="import-file" class="field-label">File JSON · maksimal 10 MB</label><input id="import-file" ref="fileInput" class="file-input" type="file" accept="application/json,.json" :disabled="store.busy.value" @change="chooseFile"></div></section>

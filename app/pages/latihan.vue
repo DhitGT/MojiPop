@@ -2,15 +2,30 @@
 import type { PracticeConfig, Script, Session, Mode } from '~/types/learning'
 import { content, contentById, confusionGroups, CONTENT_VERSION, scriptLabels } from '~/data/content'
 import { makeQueue, selectPool } from '~/utils/learning'
+import { practicePackages } from '~/data/practicePackages'
 const route = useRoute()
 const store = useLearningStore()
-useHead({ title: 'Atur latihanmu · KanaLearn' })
+const showCustom = ref(Object.keys(route.query).length > 0)
+const packages = computed(() => practicePackages(store.data.value.settings.language))
+const packageCategory = ref('starter')
+const packageFormat = ref('all')
+const packageKind = ref('all')
+const categories = [{ id: 'all', label: 'Semua' }, { id: 'starter', label: 'Mulai dari Nol' }, { id: 'letters', label: 'Huruf' }, { id: 'words', label: 'Kata' }, { id: 'challenge', label: 'Tantangan' }]
+const filteredPackages = computed(() => packages.value.filter(pack =>
+  (packageCategory.value === 'all' || pack.category === packageCategory.value)
+  && (packageFormat.value === 'all' || pack.config.answerFormat === packageFormat.value)
+  && (packageKind.value === 'all' || pack.config.kind === packageKind.value)))
+function packageTiming(config: PracticeConfig) {
+  return config.mode === 'sprint' ? '60 detik' : config.mode === 'attack' ? `${config.count} soal · kejar waktu` : `${config.count} soal · santai`
+}
 const saved = store.data.value.settings.lastConfig
 const config = reactive<PracticeConfig>({
   language: store.data.value.settings.language, script: store.data.value.settings.language === 'ja' ? 'hiragana' : 'hangul',
   kind: 'letter', group: 'Vokal', mode: 'relaxed', count: 10, source: 'random', itemIds: [], reviewIds: [],
   ...(saved && saved.language === store.data.value.settings.language ? saved : {})
 })
+if (['choice', 'typing'].includes(String(route.query.format))) config.answerFormat = route.query.format as 'choice' | 'typing'
+if (config.answerFormat === 'choice' && !route.query.mode) config.mode = 'sprint'
 // Keep ordinary preferences, but never silently carry a targeted item pool into a new setup.
 config.itemIds = []
 config.reviewIds = []
@@ -62,6 +77,14 @@ const modes: { id: Mode, title: string, icon: string, description: string }[] = 
 watch(() => config.script, script => { config.language = script === 'hangul' ? 'ko' : 'ja'; if (!isTargeted.value) config.group = 'Semua' })
 watch(() => config.kind, () => { if (!isTargeted.value) config.group = 'Semua' })
 watch(() => config.mode, mode => { if (mode === 'attack' && config.count === 0) config.count = 10 })
+watch(() => store.data.value.settings.language, language => {
+  if (showCustom.value) return
+  Object.assign(config, { language, script: language === 'ja' ? 'hiragana' : 'hangul', kind: 'letter', group: 'Semua', itemIds: [], reviewIds: [], source: 'random' })
+})
+function setFormat(format: 'typing' | 'choice') {
+  config.answerFormat = format
+  if (format === 'choice') config.mode = 'sprint'
+}
 async function start() {
   if (!pool.value.length || setupError.value || starting.value) return
   starting.value = true
@@ -77,15 +100,34 @@ async function start() {
   await store.saveSession(session)
   await navigateTo(`/arena?id=${session.id}`)
 }
+async function startPackage(packageConfig: PracticeConfig) {
+  if (starting.value) return
+  setupError.value = ''
+  Object.assign(config, JSON.parse(JSON.stringify(packageConfig)))
+  await start()
+}
 </script>
 
 <template>
   <div class="setup-simple">
-    <div class="page-heading"><h1>Atur latihan</h1><NuxtLink to="/materi" class="text-link">Pilih materi</NuxtLink></div>
+    <div class="page-heading"><h1>{{ showCustom ? 'Atur latihan' : 'Pilih latihan' }}</h1><LanguageSwitch v-if="!showCustom" /><NuxtLink v-else to="/materi" class="text-link">Pilih materi</NuxtLink></div>
+    <div class="practice-tabs" role="group" aria-label="Pilihan pengaturan latihan"><button type="button" :aria-pressed="!showCustom" @click="showCustom = false">Paket siap main</button><button type="button" :aria-pressed="showCustom" @click="showCustom = true">Atur sendiri</button></div>
+    <section v-if="!showCustom" aria-label="Paket latihan">
+      <div class="package-categories" role="group" aria-label="Kategori paket"><button v-for="category in categories" :key="category.id" type="button" :aria-pressed="packageCategory === category.id" @click="packageCategory = category.id">{{ category.label }} <span>{{ packages.filter(pack => category.id === 'all' || pack.category === category.id).length }}</span></button></div>
+      <div class="package-filters"><div class="field"><label for="package-format">Jenis latihan</label><select id="package-format" v-model="packageFormat"><option value="all">Semua jenis</option><option value="choice">Pilihan ganda</option><option value="typing">Ketik sendiri</option></select></div><div class="field"><label for="package-kind">Materi</label><select id="package-kind" v-model="packageKind"><option value="all">Huruf dan kata</option><option value="letter">Huruf</option><option value="word">Kata</option></select></div></div>
+      <p class="package-intro">{{ filteredPackages.length }} paket · Pilih, langsung main.</p>
+      <div class="package-grid"><article v-for="(pack, index) in filteredPackages" :key="pack.id" :class="['practice-package', `package-color-${index % 4}`]"><div class="package-top"><span class="package-symbol" aria-hidden="true">{{ pack.symbol }}</span><span class="package-badge">{{ pack.badge }}</span></div><h2>{{ pack.title }}</h2><p>{{ pack.description }}</p><div class="package-type">{{ pack.config.answerFormat === 'typing' ? 'Ketik' : 'Pilihan ganda' }} · {{ pack.config.kind === 'letter' ? 'Huruf' : 'Kata' }}<span>{{ packageTiming(pack.config) }}</span></div><button class="button wide" :disabled="starting" :aria-label="`Main ${pack.title}`" @click="startPackage(pack.config)">Mulai <AppIcon name="play" :size="16" /></button></article></div>
+      <div v-if="!filteredPackages.length" class="panel empty-state"><p>Belum ada paket dengan filter ini.</p><button class="text-button" @click="packageCategory = 'all'; packageFormat = 'all'; packageKind = 'all'">Lihat semua paket</button></div>
+    </section>
+    <template v-else>
     <div v-if="setupError" class="notice danger" role="alert">{{ setupError }} <NuxtLink to="/latihan" class="text-link">Latihan baru</NuxtLink></div>
     <div v-if="pair" class="notice"><strong>Perhatikan sebelum mulai: {{ pair.ids.map(id => contentById[id]?.glyph).join(' / ') }}</strong><p>{{ pair.note }}</p></div>
     <p v-if="retrySession" class="context-line">Mengulang kesalahan sesi sebelumnya.</p>
-    <form class="setup-main" @submit.prevent="start">
+    <form class="setup-main" @submit.prevent="start()">
+      <section>
+        <h2 class="form-section-title">Cara menjawab</h2>
+        <div class="answer-format"><button type="button" :class="['choice', { selected: config.answerFormat === 'choice' }]" :aria-pressed="config.answerFormat === 'choice'" @click="setFormat('choice')"><strong>Pilihan ganda</strong><small>Pilih bacaan romaji</small></button><button type="button" :class="['choice', { selected: config.answerFormat !== 'choice' }]" :aria-pressed="config.answerFormat !== 'choice'" @click="setFormat('typing')"><strong>Ketik</strong><small>Tulis sendiri bacaannya</small></button></div>
+      </section>
       <section>
         <h2 class="form-section-title">Mode</h2>
         <div class="choice-grid"><button v-for="mode in modes" :key="mode.id" type="button" :class="['choice', { selected: config.mode === mode.id }]" :aria-pressed="config.mode === mode.id" @click="config.mode = mode.id"><AppIcon :name="mode.icon" :size="22" /><strong>{{ mode.title }}</strong><p>{{ mode.id === 'relaxed' ? 'Tanpa timer' : mode.id === 'attack' ? 'Kejar waktu' : 'Sebanyak mungkin' }}</p></button></div>
@@ -116,5 +158,6 @@ async function start() {
       </div>
       <p v-if="config.mode === 'sprint'" class="field-help">Waktu tetap berjalan saat feedback. Soal terbuka saat waktu habis tidak dihitung salah.</p>
     </form>
+    </template>
   </div>
 </template>

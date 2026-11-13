@@ -2,15 +2,23 @@
 
 Status pengembangan dan catatan untuk agent berikutnya: [Handoff](app/docs/HANDOFF.md).
 
+Halaman Latihan menyediakan paket siap main dan tab Atur sendiri. Pilihan ganda huruf/kata memakai empat bacaan, feedback merah/hijau, perpindahan otomatis, dan Sprint 60 detik. Hasil menyertakan grafik komposisi jawaban dan akurasi kumulatif; latihan ketik tetap tersedia.
+
 Pemetaan fitur, bukti pengujian, dan pekerjaan sebelum rilis: [Status penerimaan MVP](app/docs/ACCEPTANCE.md).
 
 Alur utama diringkas menjadi pilih bahasa → pelajari lima huruf → latihan. Pilihan lanjutan, penjelasan skor, seluruh jawaban, serta sumber materi tersedia melalui bagian yang bisa dibuka saat dibutuhkan.
 
 Tampilan memakai tema game dengan warna ungu/lime/toska, tombol berlapis, kartu pelajaran berwarna, dan maskot Kiko. Struktur dasar berada di `app/assets/css/main.css`; tema terbaru di `app/assets/css/game.css` (dimuat setelah CSS dasar). [Aset dan prompt maskot](app/docs/MASCOT.md) mendokumentasikan PNG transparan yang dibuat dengan imagegen.
 
+Maskot aktif kembali memakai PNG asli melalui `KikoMascot.vue`, dengan animasi ringan pada gambar utuh dan dukungan pengurangan gerakan. Versi SVG berlapis, desain Kineko, dan dependency GSAP sudah di-revert atas permintaan pengguna.
+
 Aplikasi latihan membaca Jepang dan Korea berbahasa Indonesia, dibangun dengan Nuxt 4, TypeScript, Tailwind CSS 4, dan Nuxt UI 4. Implementasi lokal mengikuti [PRD](app/docs/PRD_Latihan_Jepang_Korea.md).
 
 ## Menjalankan proyek
+
+SEO menggunakan judul/deskripsi per halaman, canonical tanpa parameter, Open Graph/Twitter Card, serta `/robots.txt` dan `/sitemap.xml` otomatis. Saat deploy, isi `NUXT_PUBLIC_SITE_URL` dengan domain publik final (lihat `.env.example`) agar canonical, sitemap, dan URL gambar berbagi konsisten. Halaman sesi, hasil, progres, dan pengaturan memakai `noindex`.
+
+Favicon mengikuti logo “か” ungu. Aset PNG/ICO dan gambar berbagi dapat dibuat ulang dengan `node scripts/generate-brand-assets.mjs` menggunakan Playwright (Microsoft Edge di Windows, Chromium di platform lain).
 
 Gunakan Node.js 24 LTS dan npm.
 

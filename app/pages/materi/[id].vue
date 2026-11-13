@@ -5,7 +5,6 @@ const item = computed(() => contentById[String(route.params.id)])
 const revealed = ref(false)
 const examples = computed(() => content.filter(candidate => candidate.kind === 'word' && candidate.prerequisites.includes(item.value?.id || '')).slice(0, 3))
 const confusions = computed(() => confusionGroups.filter(group => group.ids.includes(item.value?.id || '')))
-useHead({ title: computed(() => `${item.value?.glyph || 'Materi'} · KanaLearn`) })
 </script>
 
 <template>

@@ -69,6 +69,7 @@ const stringArray = (value: unknown): value is string[] => Array.isArray(value) 
 export function validConfig(value: unknown): value is PracticeConfig {
   if (!value || typeof value !== 'object') return false
   const c = value as PracticeConfig
+  if (c.answerFormat !== undefined && !['typing', 'choice'].includes(c.answerFormat)) return false
   return ['ja', 'ko'].includes(c.language) && ['hiragana', 'katakana', 'hangul'].includes(c.script)
     && (c.language === 'ko' ? c.script === 'hangul' : c.script !== 'hangul')
     && ['letter', 'word'].includes(c.kind) && ['relaxed', 'attack', 'sprint'].includes(c.mode)

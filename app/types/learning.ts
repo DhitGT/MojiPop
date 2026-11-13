@@ -28,6 +28,7 @@ export interface ConfusionGroup {
 }
 
 export interface PracticeConfig {
+  answerFormat?: 'typing' | 'choice'
   language: Language
   script: Script
   kind: Kind

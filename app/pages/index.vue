@@ -4,7 +4,6 @@ import { itemProgress } from '~/utils/learning'
 import { studyPath } from '~/utils/curriculum'
 
 const store = useLearningStore()
-useHead({ title: 'KanaLearn · Belajar Jepang & Korea' })
 const language = computed(() => store.data.value.settings.language)
 const sessions = computed(() => store.data.value.sessions.filter(session => session.config.language === language.value))
 const attempts = computed(() => sessions.value.flatMap(session => session.attempts))
@@ -25,7 +24,7 @@ const nextSteps = computed(() => {
 const practicedInStep = computed(() => recommendedStep.value.items.filter(item => itemProgress(item.id, sessions.value).total > 0).length)
 const quickPractice = (mode: 'relaxed' | 'attack' | 'sprint') => ({ path: '/latihan', query: {
   script: language.value === 'ja' ? 'hiragana' : 'hangul', kind: 'letter', group: recommendedStep.value.group,
-  items: recommendedStep.value.items.map(item => item.id).join(','), mode
+  items: recommendedStep.value.items.map(item => item.id).join(','), mode, ...(mode === 'sprint' ? { format: 'choice' } : {})
 } })
 const heroLink = computed(() => unfinished.value ? `/arena?id=${unfinished.value.id}` : needsReview.value ? `/latihan?retry=${latest.value!.id}` : {
   path: '/materi', query: { script: language.value === 'ja' ? 'hiragana' : 'hangul', step: recommendedStep.value.id }
@@ -63,7 +62,7 @@ function scriptStats(script: string) {
       </NuxtLink>
     </div>
     <div class="section-title"><h2>Langsung latihan</h2></div>
-    <div class="quick-modes"><NuxtLink :to="quickPractice('relaxed')" class="quick-mode"><span class="quick-icon"><AppIcon name="spark" :size="24" /></span><span><strong>Santai</strong><small>Tanpa timer</small></span><AppIcon name="arrow" :size="16" /></NuxtLink><NuxtLink :to="quickPractice('attack')" class="quick-mode"><span class="quick-icon"><AppIcon name="clock" :size="24" /></span><span><strong>Time Attack</strong><small>Kejar waktu</small></span><AppIcon name="arrow" :size="16" /></NuxtLink><NuxtLink :to="quickPractice('sprint')" class="quick-mode"><span class="quick-icon"><AppIcon name="bolt" :size="24" /></span><span><strong>Sprint</strong><small>60 detik</small></span><AppIcon name="arrow" :size="16" /></NuxtLink></div>
+    <div class="quick-modes"><NuxtLink :to="quickPractice('relaxed')" class="quick-mode"><span class="quick-icon"><AppIcon name="spark" :size="24" /></span><span><strong>Santai</strong><small>Tanpa timer</small></span><AppIcon name="arrow" :size="16" /></NuxtLink><NuxtLink :to="quickPractice('attack')" class="quick-mode"><span class="quick-icon"><AppIcon name="clock" :size="24" /></span><span><strong>Time Attack</strong><small>Kejar waktu</small></span><AppIcon name="arrow" :size="16" /></NuxtLink><NuxtLink :to="quickPractice('sprint')" class="quick-mode"><span class="quick-icon"><AppIcon name="bolt" :size="24" /></span><span><strong>Sprint</strong><small>Pilihan ganda / 60 detik</small></span><AppIcon name="arrow" :size="16" /></NuxtLink></div>
     </div>
     <aside class="dashboard-rail">
       <section class="rail-progress"><div class="rail-heading"><span class="rail-icon"><AppIcon name="target" :size="23" /></span><h2>{{ recommendedStep.items.length }} huruf dulu</h2></div><div class="rail-score"><strong>{{ practicedInStep }}<span>/{{ recommendedStep.items.length }}</span></strong><span>dicoba</span></div><div class="progress-bar"><span :style="{ width: `${practicedInStep / recommendedStep.items.length * 100}%` }" /></div></section>

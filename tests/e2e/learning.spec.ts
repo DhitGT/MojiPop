@@ -34,7 +34,7 @@ test('a new learner can study, finish ten questions, and retain progress after r
   }
   await expect(page).toHaveURL(/\/hasil\//)
   await expect(page.getByText('100%', { exact: true })).toBeVisible()
-  await expect(page.locator('tbody tr')).toHaveCount(10)
+  await expect(page.locator('.answer-details tbody tr')).toHaveCount(10)
   await page.reload()
   await expect(page.getByText('100%', { exact: true })).toBeVisible()
   await page.goto('/progres')
@@ -72,7 +72,7 @@ test('Sprint expires by elapsed time and never counts the open prompt as wrong',
   await page.locator('.quick-mode').filter({ hasText: 'Sprint' }).click()
   await expect(page.getByRole('button', { name: /Sprint 60 detik/ })).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: 'Mulai latihan', exact: true }).click()
-  await expect(page.locator('#answer')).toBeEnabled()
+  await expect(page.locator('.romaji-option').first()).toBeEnabled()
   await page.clock.runFor(61000)
   await expect(page).toHaveURL(/\/hasil\//)
   await expect(page.getByText('◌ 1 tidak selesai', { exact: true })).toBeVisible()
@@ -92,7 +92,7 @@ test('pause and reload preserve attempts and exclude a speed record', async ({ p
   await expect(page.locator('#answer')).toBeEnabled()
   await expect(page.getByText(/1 benar mandiri/)).toBeVisible()
   await page.getByRole('button', { name: 'Akhiri sesi' }).click()
-  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await expect(page.locator('.answer-details tbody tr')).toHaveCount(1)
   await page.getByText('Detail skor', { exact: true }).click()
   await expect(page.getByText(/Sesi pernah dijeda/)).toBeVisible()
 })
@@ -146,7 +146,7 @@ test('Time Attack finishes its configured package and produces an eligible recor
   await expect(page).toHaveURL(/\/hasil\//)
   await expect(page.getByText('100%', { exact: true })).toBeVisible()
   await expect(page.getByText(/Rekor baru/)).toBeVisible()
-  await expect(page.locator('tbody tr')).toHaveCount(10)
+  await expect(page.locator('.answer-details tbody tr')).toHaveCount(10)
 })
 
 test('a hidden tab pauses Sprint and resume replaces the unanswered prompt', async ({ page }) => {
@@ -225,7 +225,7 @@ test('export, confirmed reset, and validated import restore the original attempt
   await page.reload()
   await expect(page.getByText('1 / 1', { exact: true })).toBeVisible()
   await page.goto(`/hasil/${backup.sessions[0].id}`)
-  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await expect(page.locator('.answer-details tbody tr')).toHaveCount(1)
 })
 
 test('storage quota failure keeps answers in memory and allows their export', async ({ page }) => {

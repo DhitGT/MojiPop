@@ -6,7 +6,6 @@ import { studyPath, wordsForStep } from '~/utils/curriculum'
 
 const store = useLearningStore()
 const route = useRoute()
-useHead({ title: 'Materi belajar · KanaLearn' })
 const script = ref<Script>(store.data.value.settings.language === 'ja' ? 'hiragana' : 'hangul')
 const kind = ref<Kind>('letter')
 const group = ref('Semua')

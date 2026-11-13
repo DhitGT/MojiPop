@@ -1,8 +1,53 @@
 # Handoff pengembangan KanaLearn
 
+## Terbaru: pilihan ganda dan paket siap main
+
+Perluasan terakhir: 31 paket Jepang dan 17 paket Korea, dikelompokkan sebagai Mulai dari Nol (4 paket per bahasa), Huruf (13 Jepang / 4 Korea), Kata (9 Jepang / 4 Korea), Tantangan (5 per bahasa). Halaman pertama hanya menampilkan kategori pemula. Filter jenis jawaban (pilihan ganda/ketik) dan materi (huruf/kata), jumlah paket, serta empty state/reset filter tersedia. Paket mencakup baris kana, dakuten/handakuten/kombinasi, kata pendek/panjang/tsu kecil/vokal panjang, vokal/konsonan Hangul, Sprint ketik/kata, dan Time Attack 20 soal. Semua paket memakai katalog yang sudah ada; tidak menambah konten bahasa yang belum ditinjau. Tombol kartu “Mulai” langsung menjalankan sesi, label aksesibelnya menyebut nama paket.
+
+Verifikasi katalog terakhir: 15 tes domain lulus, typecheck exit 0, dan 4 tes browser lulus (`e2e-packages.log`) mencakup kategori/filter/empty state, paket Jepang/Korea, pilihan ganda huruf/kata, warna feedback, lanjut otomatis, deadline, grafik, serta persistensi setelah reload. Satu percobaan sebelumnya gagal ketika menjalankan typecheck bersamaan browser: dev server sedang membangun ulang saat reload. Ulang secara berurutan lulus; jangan menjalankan pembangkitan `.nuxt` bersamaan browser dev untuk menghindari gangguan ini.
+
+- `/latihan` tanpa query membuka paket siap main. Jepang: Hiragana Pertama (5 vokal), Hiragana Dasar (15 huruf), Tebak Kata (12 kata pendek), Katakana Dasar, Sprint Campuran, Berani Ketik. Korea memiliki 5 paket sepadan. Definisi ada di `app/data/practicePackages.ts`.
+- Paket langsung membuat sesi; tab Atur sendiri mempertahankan semua pengaturan. Link materi/retry/repeat dengan query tetap membuka pengaturan manual. Pilihan ganda otomatis memilih Sprint 60 detik ketika dipilih, tetapi mode lain tetap bisa dipilih manual.
+- `PracticeConfig.answerFormat` opsional (`typing`/`choice`); config lama tanpa field ini tetap berarti ketik. Validasi backup menerima keduanya dan kunci pembanding rekor memisahkan format.
+- `makeChoices` menyediakan empat jawaban unik dari script/jenis yang sama, mengecualikan alias benar sebagai distractor. Pool latihan satu huruf tetap mendapat distractor dari katalog. Semua item diuji hanya memiliki satu opsi yang diterima.
+- Arena pilihan ganda: klik atau angka 1–4; salah merah dan opsi benar hijau, benar hijau; semua hasil berganti otomatis setelah 850 ms. Timer tetap berjalan saat feedback. Jeda/reload dan pencatatan percobaan memakai mekanisme lama.
+- `SessionCharts.vue` menampilkan komposisi hasil dan grafik SVG akurasi kumulatif dengan label aksesibel. Grafik dihitung dari jawaban tersimpan; tidak menambah dependency chart.
+- Bukti: `npm test` 15 lulus; suite browser awal 16 lulus (`e2e-choice.log`), kemudian 3 tes pilihan ganda/paket lulus (`e2e-packages.log`). Screenshot ponsel di `test-results/practice-packages.png`, `choice-letter.png`, dan `choice-results-letter.png`. Build/typecheck akhir dicatat di `build-choice.log` dan `typecheck-choice.log`.
+- Maskot tidak diubah oleh pekerjaan ini.
+
 Dicatat: 13 November 2026, Asia/Jakarta.
 
 **Status terkini: pengembangan sudah dilanjutkan atas permintaan pengguna.** Perubahan dan hasil terbaru ada pada bagian berikut; bagian setelahnya mencatat keadaan pada handoff pertama.
+
+## REVERT TERBARU — kembali sebelum SVG berlapis
+
+Pengguna menghentikan pengembangan lalu meminta: "kembali sebelum SVG CSS keyframe". Target dipulihkan ke Kiko PNG asli dengan animasi ringan gambar utuh, sebelum rig SVG dan GSAP. Jangan melanjutkan implementasi SVG/GSAP/Kineko dari arsip di bawah tanpa permintaan baru.
+
+- Aktif: `KikoMascot.vue` merender `public/images/kiko-mascot.png`; idle/hover/lompatan/perayaan CSS pada gambar utuh dipulihkan. Reduced motion sistem/aplikasi, pause tab/offscreen dan cleanup listener tetap ada.
+- `KinekoCharacter.vue`, `KinekoMascot.vue` dan `useKinekoAnimation.ts` dihapus. Komponen, label dan selector kembali Kiko/KIKO. Tidak ada renderer SVG karakter yang aktif.
+- GSAP di-uninstall, termasuk perubahan package.json/lockfile. Tema game, warna, kepadatan layout, alur belajar, dataset dan penyimpanan progres tidak di-revert.
+- Tes ponsel kembali menunggu PNG selesai didekode. Dokumentasi maskot/README disesuaikan. Verifikasi revert lulus: typecheck exit 0 (`typecheck-mascot-revert.log`), 2 tes desktop/ponsel (`e2e-mascot-revert.log`), build exit 0 dalam 50.9 detik (`build-mascot-revert.log`).
+
+Semua bagian rig SVG/GSAP di bawah adalah arsip perubahan yang telah dibatalkan.
+
+## Rig SVG maskot (koreksi terbaru pengguna)
+
+Pengguna memperjelas bahwa animasi yang diinginkan adalah bagian tubuh bergerak sendiri: mulut buka-tutup dan tangan wave. Animasi PNG utuh sebelumnya tidak memenuhi maksud tersebut.
+
+- Render aktif diganti menjadi `KikoCharacter.vue`, SVG berlapis yang mempertahankan identitas Kiko: kucing toska, telinga koral, bintang kuning, mata besar dan buku ungu. Grup tangan, mulut, mata, ekor, kepala dan buku memiliki keyframe sendiri. PNG awal tetap disimpan sebagai referensi, tidak diedit/dihapus.
+- Tangan berputar dari bahu, mulut memakai lapisan senyum tertutup dan cavity terbuka, mata berkedip, ekor bergoyang. Hover/klik mempercepat sapaan/mulut; animasi wrapper tetap menangani lompatan/perayaan. `KikoMascot` meneruskan status paused dan reaction ke SVG.
+- Preferensi reduced motion mematikan animasi sampai ke grup SVG. Prop dekoratif, akses keyboard, pause tab/offscreen dan cleanup tetap dipertahankan. Tidak memasang dependency tambahan; GSAP/Rive disebut sebagai opsi library, bukan diklaim dipakai.
+- QA berhasil membuktikan tangan dan mulut bergerak independen ketika idle wrapper dimatikan, serta memeriksa keyboard/reduced motion dan tidak ada page error (`kiko-rig-check.log`). Script QA/screenshot sementara: `test-results/kiko-rig-check.mjs` dan `kiko-rig.png`. Jangan memakai screenshot dengan opsi Playwright `animations: disabled` sebelum memeriksa lifecycle native animation, karena opsi itu mengubah timeline.
+- Typecheck lulus (`typecheck-kiko-rig.log`). Tiga tes alur desktop/ponsel lulus, exit 0 (`e2e-kiko-rig.log`). Build berhasil, exit 0, 55.2 detik (`build-kiko-rig.log`).
+
+Bagian animasi PNG di bawah adalah arsip versi sebelumnya; SVG berlapis ini adalah implementasi terkini.
+
+## Animasi maskot (permintaan terakhir)
+
+- `KikoMascot.vue` sekarang menggerakkan PNG yang ada melalui wrapper CSS: idle, reaksi hover, lompatan saat klik/keyboard, dan kilau. Root interaktif menjadi tombol berlabel `Sapa Kiko`; varian `decorative` memakai span tanpa fokus keyboard.
+- Hasil sesi yang benar-benar selesai mengirim prop `celebrate`, memicu perayaan sekali. Hasil sesi terputus tetap memakai idle.
+- Gerakan berhenti saat reduced motion sistem/preferensi aplikasi aktif, tab tersembunyi, atau elemen keluar viewport. Media listener, visibility listener dan IntersectionObserver dibersihkan pada unmount. Tidak ada asset raster atau dependency baru.
+- Typecheck lulus (`typecheck-kiko.log`). QA browser terarah lulus untuk idle yang benar-benar bergerak, klik, keyboard, perayaan, hidden tab, serta reduced motion sistem dan aplikasi; tidak ada page error (`kiko-motion-check.log`). Script QA sementara berada di `test-results/kiko-motion-check.mjs` dan bisa hilang saat Playwright membersihkan artefak. Build berhasil, exit 0, 30.7 detik (`build-kiko.log`).
 
 ## Tema game dan maskot (permintaan visual terakhir)
 

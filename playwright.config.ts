@@ -11,6 +11,8 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: externalURL || 'http://127.0.0.1:3210',
+    // Existing feature tests start after onboarding; the intro spec uses a fresh browser.
+    storageState: { cookies: [], origins: [{ origin: new URL(externalURL || 'http://127.0.0.1:3210').origin, localStorage: [{ name: 'kanalearn-intro-v1', value: 'done' }] }] },
     channel: process.platform === 'win32' ? 'msedge' : undefined,
     trace: 'retain-on-failure'
   },

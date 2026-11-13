@@ -1,6 +1,6 @@
 import type { Attempt, Session } from '~/types/learning'
 import { contentById, content } from '~/data/content'
-import { makeAttempt, makeQueue, selectPool } from '~/utils/learning'
+import { makeAttempt, makeQueue, makeChoices, selectPool } from '~/utils/learning'
 
 export function usePractice(session: Ref<Session | undefined>) {
   const store = useLearningStore()
@@ -10,6 +10,8 @@ export function usePractice(session: Ref<Session | undefined>) {
   const elapsed = ref(0)
   const promptReady = ref(false)
   const inputElement = ref<HTMLInputElement | null>(null)
+  const choiceElement = ref<HTMLElement | null>(null)
+  const choices = ref<string[]>([])
   const current = computed(() => contentById[session.value?.queue[session.value.cursor] || ''])
   const paused = computed(() => session.value?.status === 'paused' || session.value?.status === 'interrupted')
   let clockStart = 0
@@ -28,6 +30,7 @@ export function usePractice(session: Ref<Session | undefined>) {
   async function focusPrompt() {
     const currentGeneration = ++generation
     promptReady.value = false
+    choices.value = current.value ? makeChoices(current.value, content) : []
     await nextTick()
     await new Promise<void>(resolve => requestAnimationFrame(() => resolve()))
     if (disposed || currentGeneration !== generation || session.value?.status !== 'active' || document.hidden) return
@@ -35,6 +38,7 @@ export function usePractice(session: Ref<Session | undefined>) {
     promptReady.value = true
     await nextTick()
     inputElement.value?.focus()
+    choiceElement.value?.querySelector<HTMLButtonElement>('button')?.focus()
   }
   async function finish(expired = false) {
     const s = session.value
@@ -102,7 +106,12 @@ export function usePractice(session: Ref<Session | undefined>) {
     feedback.value = attempt
     s.activeMs = activeMs()
     void store.saveSession(s)
-    if (attempt.outcome === 'correct') transition = setTimeout(() => void next(), store.data.value.settings.reducedMotion ? 150 : 650)
+    if (s.config.answerFormat === 'choice' || attempt.outcome === 'correct') transition = setTimeout(() => void next(), s.config.answerFormat === 'choice' ? 850 : store.data.value.settings.reducedMotion ? 150 : 650)
+  }
+  function choose(answer: string) {
+    if (!choices.value.includes(answer) || feedback.value || !promptReady.value || session.value?.status !== 'active') return
+    input.value = answer
+    submit()
   }
   function hint() {
     if (session.value?.status === 'active' && promptReady.value && !feedback.value && !expired()) assisted.value = true
@@ -167,5 +176,5 @@ export function usePractice(session: Ref<Session | undefined>) {
     document.removeEventListener('keydown', keyboard)
     window.removeEventListener('pagehide', pause)
   })
-  return { input, assisted, feedback, elapsed, promptReady, inputElement, current, paused, submit, hint, next, pause, resume, finish }
+  return { input, assisted, feedback, elapsed, promptReady, inputElement, choiceElement, choices, choose, current, paused, submit, hint, next, pause, resume, finish }
 }

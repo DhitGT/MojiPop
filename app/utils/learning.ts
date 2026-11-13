@@ -109,7 +109,21 @@ export function detectConfusion(attempt: Attempt, content: ContentItem[], groups
 
 export function comparisonKey(session: Session) {
   const { language, script, kind, group, mode, count, source, itemIds, reviewIds } = session.config
-  return JSON.stringify([language, script, kind, group, mode, count, source, [...itemIds].sort(), [...reviewIds].sort(), session.contentVersion, session.device])
+  return JSON.stringify([session.config.answerFormat || 'typing', language, script, kind, group, mode, count, source, [...itemIds].sort(), [...reviewIds].sort(), session.contentVersion, session.device])
+}
+
+/** Distractors come from the same script and kind, even for a single-item lesson. */
+export function makeChoices(item: ContentItem, items: ContentItem[], random = Math.random): string[] {
+  const seen = new Set([normalizeAnswer(item.answer)])
+  const distractors = shuffle(items.filter(candidate => candidate.script === item.script && candidate.kind === item.kind), random)
+    .map(candidate => candidate.answer)
+    .filter(answer => {
+      const normalized = normalizeAnswer(answer)
+      if (seen.has(normalized) || accepts(item, answer)) return false
+      seen.add(normalized)
+      return true
+    }).slice(0, 3)
+  return shuffle([item.answer, ...distractors], random)
 }
 
 export function isNewRecord(session: Session, sessions: Session[]) {

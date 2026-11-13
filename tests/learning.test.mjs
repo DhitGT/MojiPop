@@ -1,15 +1,53 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { content, contentById, confusionGroups, CONTENT_VERSION } from '../app/data/content.ts'
-import { accepts, makeAttempt, makeQueue, selectPool, summarize, itemProgress, detectConfusion, comparisonKey, isNewRecord, chronologicalAttempts } from '../app/utils/learning.ts'
-import { emptyProgress, validateImport } from '../app/utils/storage.ts'
+import { accepts, makeChoices, makeAttempt, makeQueue, selectPool, summarize, itemProgress, detectConfusion, comparisonKey, isNewRecord, chronologicalAttempts } from '../app/utils/learning.ts'
+import { emptyProgress, validateImport, validConfig } from '../app/utils/storage.ts'
 import { studyPath, wordsForStep } from '../app/utils/curriculum.ts'
+import { practicePackages } from '../app/data/practicePackages.ts'
 
 const config = (overrides = {}) => ({ language: 'ja', script: 'hiragana', kind: 'letter', group: 'Vokal', mode: 'relaxed', count: 10, source: 'random', itemIds: [], reviewIds: [], ...overrides })
 function session(overrides = {}) {
   return { id: 'session-1', config: config(), contentVersion: CONTENT_VERSION, device: 'keyboard', startedAt: '2026-11-13T03:00:00Z', activeMs: 10000, status: 'active', hasPaused: false, attempts: [], queue: Array(10).fill('hiragana:あ'), cursor: 0, unfinished: 0, ...overrides }
 }
 const attempt = (s, id, input, options = {}) => makeAttempt(s, contentById[id], input, options.assisted || false, options.skipped || false, options.ms ?? 1000)
+
+test('ready-made packages have valid, nonempty pools and keep beginner lessons focused', () => {
+  for (const language of ['ja', 'ko']) {
+    const packages = practicePackages(language)
+    assert.equal(new Set(packages.map(pack => pack.id)).size, packages.length)
+    for (const pack of packages) {
+      assert.ok(validConfig(pack.config), pack.id)
+      assert.ok(selectPool(pack.config, content).length, pack.id)
+      assert.equal(pack.config.language, language)
+      assert.ok(['starter', 'letters', 'words', 'challenge'].includes(pack.category))
+    }
+    assert.equal(selectPool(packages[0].config, content).length, 5)
+    assert.ok(packages.some(pack => pack.config.kind === 'word'))
+    assert.ok(packages.some(pack => pack.config.answerFormat === 'typing'))
+    assert.ok(packages.length >= 17)
+    assert.equal(new Set(packages.map(pack => pack.category)).size, 4)
+  }
+})
+
+test('choice answers are unique and contain exactly one accepted answer for every item', () => {
+  for (const item of content) {
+    const choices = makeChoices(item, content)
+    assert.equal(choices.length, 4, item.id)
+    assert.equal(new Set(choices).size, 4, item.id)
+    assert.deepEqual(choices.filter(answer => accepts(item, answer)), [item.answer], item.id)
+    assert.ok(choices.every(answer => content.some(candidate => candidate.script === item.script && candidate.kind === item.kind && candidate.answer === answer)))
+  }
+  assert.deepEqual(makeChoices(content[0], [content[0]]), [content[0].answer])
+})
+
+test('choice records stay separate while old typing configs and imports remain valid', () => {
+  assert.ok(validConfig(config()))
+  assert.ok(validConfig(config({ answerFormat: 'choice' })))
+  assert.ok(!validConfig(config({ answerFormat: 'invalid' })))
+  assert.equal(comparisonKey(session()), comparisonKey(session({ config: config({ answerFormat: 'typing' }) })))
+  assert.notEqual(comparisonKey(session()), comparisonKey(session({ config: config({ answerFormat: 'choice' }) })))
+})
 
 test('content has stable unique IDs, full basic kana, and the required draft word pools', () => {
   assert.equal(new Set(content.map(item => item.id)).size, content.length)

@@ -2,7 +2,6 @@
 import { content, scriptLabels, modeLabels } from '~/data/content'
 import { itemProgress, summarize, duration, isNewRecord, chronologicalAttempts } from '~/utils/learning'
 const store = useLearningStore()
-useHead({ title: 'Progres saya · KanaLearn' })
 const language = computed(() => store.data.value.settings.language)
 const sessions = computed(() => store.data.value.sessions.filter(session => session.config.language === language.value))
 const items = computed(() => content.filter(item => item.language === language.value).map(item => ({ item, ...itemProgress(item.id, sessions.value) })).filter(item => item.total > 0))
