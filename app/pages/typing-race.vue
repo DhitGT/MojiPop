@@ -259,7 +259,6 @@ textarea { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; 
   .race-track { height: 120px; font-size: 18px; padding: 12px; overscroll-behavior-y: contain; }
   .race-board.mobile-typing .race-source { max-height: 84px; }
   .race-board.mobile-typing .race-track { height: 84px; }
-  .race-board.mobile-typing :deep(.typing-mascot) { display: none; }
   .race-actions { gap: 10px; }
   .race-actions .button { flex: 1 1 100%; font-size: 13px; }
 }

@@ -1,10 +1,11 @@
+
 export default defineNuxtConfig({
   devServer: {
     port: 3333,
   },
   compatibilityDate: "2026-11-13",
   devtools: { enabled: true },
-  modules: ["@nuxt/ui"],
+  modules: ["@nuxt/ui", "@vercel/analytics"],
   ui: { fonts: false },
   css: ["~/assets/css/main.css", "~/assets/css/game.css", "~/assets/css/theme.css", "~/assets/css/mascots.css"],
   runtimeConfig: {

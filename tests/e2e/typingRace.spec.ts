@@ -26,6 +26,10 @@ test('mobile controls fit and the prompt stays visible above the keyboard', asyn
   await expect(input).toBeFocused()
   // Desktop automation cannot open a system keyboard; emulate its reduced viewport.
   await page.setViewportSize({ width: 390, height: 440 })
+  const mascot = page.locator('.typing-mascot')
+  await expect(mascot).toBeVisible()
+  await expect(mascot).toHaveAttribute('data-motion', 'running')
+  await expect(mascot.locator('.head-pose')).not.toHaveCSS('animation-name', 'none')
   await expect.poll(async () => (await page.locator('.race-source').boundingBox())!.y).toBeGreaterThanOrEqual(0)
   const navigation = (await page.getByRole('navigation', { name: 'Navigasi utama' }).boundingBox())!
   const focusedEditor = (await page.locator('.race-editor').boundingBox())!
@@ -33,6 +37,7 @@ test('mobile controls fit and the prompt stays visible above the keyboard', asyn
   await input.pressSequentially('x')
   await expect(input).toHaveValue('x')
   await expect(page.locator('.race-track .wrong')).toHaveCount(1)
+  await expect(mascot).toBeVisible()
   await page.screenshot({ path: '.cache/typing-race-mobile-keyboard.png' })
   await page.getByRole('button', { name: 'Ulangi teks', exact: true }).tap()
   await expect(input).toHaveValue('')
